@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataPrune - Demo</title>
+    <style>
+        body{font-family:system-ui;background:#0f172a;color:#f8fafc;padding:2rem;line-height:1.6}
+        textarea{width:100%;max-width:600px;height:150px;padding:1rem;background:#1e293b;border:1px solid #334155;color:#f8fafc;border-radius:8px}
+        button{background:#6366f1;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;cursor:pointer;margin-top:1rem}
+        button:hover{background:#4f46e5}
+        #results{margin-top:2rem;padding:1.5rem;background:#1e293b;border-radius:8px;display:none}
+        .pii-item{background:rgba(239,68,68,0.2);border-left:3px solid #ef4444;padding:0.5rem 1rem;margin:0.5rem 0}
+        nav{margin-bottom:2rem}nav a{color:#94a3b8;text-decoration:none}nav a:hover{color:#6366f1}
+    </style>
+</head>
+<body>
+    <nav><a href="/">← Back to Home</a></nav>
+    <h1>Try DataPrune</h1>
+    <p>Paste text with PII (email, phone, etc):</p>
+    <textarea id="input" placeholder="My email is test@example.com..."></textarea>
+    <br>
+    <button onclick="analyze()">Analyze</button>
+    <div id="results">
+        <h2>Detected PII:</h2>
+        <div id="pii-list"></div>
+        <h2>Optimized:</h2>
+        <pre id="optimized"></pre>
+    </div>
+    <script>
+        const patterns={email:{p:/\b[^@\s]+@[^@\s]+\.[^@\s]+\b/g,l:'Email'},phone:{p:/\b(\+44|0)\s?7\d{3}\s?\d{6}\b/g,l:'Phone'},cc:{p:/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,l:'Credit Card'}};
+        function analyze(){
+            const t=document.getElementById('input').value,r=document.getElementById('results'),p=document.getElementById('pii-list'),o=document.getElementById('optimized');
+            if(!t.trim())return alert('Enter some text');
+            p.innerHTML='';let d=[],x=t;
+            for(const[k,v]of Object.entries(patterns)){const m=t.match(v.p);if(m)m.forEach(n=>{d.push({t:v.l,v:n});x=x.replace(n,'['+v.l+']')})}
+            if(d.length===0)p.innerHTML='<p>No PII found ✓</p>';else d.forEach(i=>{const e=document.createElement('div');e.className='pii-item';e.innerHTML='<strong>'+i.t+':</strong> '+i.v;p.appendChild(e)});
+            o.textContent=x;r.style.display='block';
+        }
+    </script>
+</body>
+</html>
